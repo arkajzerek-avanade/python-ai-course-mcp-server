@@ -1,0 +1,9 @@
+[project]
+name = "python-ai-course-mcp-server"
+version = "0.1.0"
+description = "A demo MCP server for Python AI course with get_info and get_greetings endpoints"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=1.8.1",
+]
