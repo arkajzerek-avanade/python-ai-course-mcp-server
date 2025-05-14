@@ -5,5 +5,6 @@ description = "A demo MCP server for Python AI course with get_info and get_gree
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "gitpython>=3.1.44",
     "mcp[cli]>=1.8.1",
 ]

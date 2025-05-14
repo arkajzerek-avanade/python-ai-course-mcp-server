@@ -1,10 +1,15 @@
 from mcp.server.fastmcp import FastMCP
 import os
-import pathlib
+import git
 from typing import Dict, List, Any
+from mcp.server import Server
+
 
 # Initialize FastMCP server
 mcp = FastMCP("python-ai-course-mcp-server")
+
+server = Server("python-ai-course-mcp-server")
+
 
 @mcp.tool()
 async def get_info() -> str:
@@ -12,6 +17,11 @@ async def get_info() -> str:
     
     Returns information about the purpose and capabilities of this demo MCP server.
     """
+    await server.request_context.session.send_log_message(
+      level="info",
+      data="get_info started successfully",
+    )
+
     return (
         "This is a demo MCP server created using the MCP SDK.\n\n"
         "It demonstrates how to create a simple MCP server with tools "
@@ -27,6 +37,11 @@ async def get_greetings(name: str) -> str:
     
     Returns a friendly greeting that includes the provided name.
     """
+    await server.request_context.session.send_log_message(
+      level="info",
+      data=f"get_greetings {name} started successfully",
+    )
+
     return f"Hello, {name}! This is a demo MCP server."
 
 @mcp.tool()
@@ -38,6 +53,12 @@ async def get_workspace_info(workspace_folder: str) -> str:
     
     Returns information about the files in the workspace, including counts and statistics.
     """
+
+    await server.request_context.session.send_log_message(
+      level="info",
+      data=f"get_workspace_info {workspace_folder} started successfully",
+    )
+
     try:
         # Ensure the path exists
         if not os.path.exists(workspace_folder):
@@ -146,6 +167,76 @@ def format_timestamp(timestamp):
     from datetime import datetime
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
+
+@mcp.tool()
+async def get_repo_info(repo_path: str) -> str:
+    """Get basic information about a Git repository status.
+    
+    Args:
+        repo_path: Path to the Git repository (can use ${workspaceFolder} in VS Code)
+    
+    Returns basic Git repository status information.
+    """
+    
+    await server.request_context.session.send_log_message(
+      level="info",
+      data=f"get_repo_info {repo_path} started successfully",
+    )
+    
+    try:
+        # Ensure the path exists
+        if not os.path.exists(repo_path):
+            return f"Error: The path '{repo_path}' does not exist."
+        
+        # Open the repository using GitPython
+        try:
+            repo = git.Repo(repo_path)
+        except git.exc.InvalidGitRepositoryError:
+            return f"Error: '{repo_path}' is not a Git repository."
+        
+        # Get basic repository information
+        result = []
+        
+        # Repository path
+        result.append(f"Repository: {repo_path}")
+        
+        # Current branch
+        try:
+            active_branch = repo.active_branch.name
+            result.append(f"Current branch: {active_branch}")
+        except TypeError:
+            # This happens when in detached HEAD state
+            result.append("Current branch: DETACHED HEAD")
+        
+        # Check if working directory is clean
+        if repo.is_dirty():
+            result.append("Status: Working directory has uncommitted changes")
+        else:
+            result.append("Status: Working directory is clean")
+        
+        # Count untracked files
+        untracked_files = repo.untracked_files
+        if untracked_files:
+            result.append(f"Untracked files: {len(untracked_files)}")
+        
+        # Count modified files
+        modified_files = [item.a_path for item in repo.index.diff(None)]
+        if modified_files:
+            result.append(f"Modified files: {len(modified_files)}")
+        
+        # Count staged files
+        staged_files = [item.a_path for item in repo.index.diff('HEAD')]
+        if staged_files:
+            result.append(f"Staged files: {len(staged_files)}")
+        
+        # Get remote information if available
+        if repo.remotes:
+            result.append(f"Remote: {repo.remotes[0].name} ({repo.remotes[0].url})")
+        
+        return "\n".join(result)
+    
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
     # Initialize and run the server

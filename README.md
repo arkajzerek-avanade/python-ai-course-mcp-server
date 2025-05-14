@@ -75,6 +75,11 @@ This project implements a simple MCP (Model Context Protocol) server with the fo
      - Newest files
    - In VS Code, you can use `${workspaceFolder}` as the parameter value
 
+4. **get_repo_info**: Returns basic information about a Git repository
+   - Parameters: `repo_path` (string, required) - Path to the Git repository
+   - Returns the output of `git status` for the specified repository
+   - In VS Code, you can use `${workspaceFolder}` as the parameter value
+
 ### How It Works
 
 The server is built using the MCP SDK and follows the standard MCP protocol:
