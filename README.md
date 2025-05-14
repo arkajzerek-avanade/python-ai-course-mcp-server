@@ -65,6 +65,16 @@ This project implements a simple MCP (Model Context Protocol) server with the fo
    - Parameters: `name` (string, required)
    - Returns a greeting message that includes the provided name
 
+3. **get_workspace_info**: Returns information about a workspace folder
+   - Parameters: `workspace_folder` (string, required) - Path to the workspace folder
+   - Returns statistics about the files in the workspace, including:
+     - Total number of files and directories
+     - Total size of all files
+     - Distribution of file types
+     - Largest files
+     - Newest files
+   - In VS Code, you can use `${workspaceFolder}` as the parameter value
+
 ### How It Works
 
 The server is built using the MCP SDK and follows the standard MCP protocol:
@@ -91,3 +101,26 @@ Example of asking Claude to use the tools:
 - "Please use the get_greetings tool with my name 'John'."
 
 A sample configuration file is provided in this repository as `claude_desktop_config_sample.json`. You may need to adjust the paths to match your system.
+
+### Testing with VS Code
+
+To use this MCP server with VS Code:
+
+1. Install VS Code and the MCP extension for VS Code
+2. Configure the MCP extension by adding the server configuration to your VS Code settings:
+   - Open VS Code settings (File > Preferences > Settings or Ctrl+,)
+   - Click on the "Open Settings (JSON)" icon in the top right corner
+   - Add the configuration from `vscode_settings_example.json` to your settings file
+   - Save the settings file and restart VS Code
+3. Open a workspace in VS Code
+4. Use the MCP extension to call the tools, particularly the `get_workspace_info` tool which can use the `${workspaceFolder}` variable
+
+Example of using the `get_workspace_info` tool in VS Code:
+- The tool will automatically receive the current workspace path when you use `${workspaceFolder}` as the parameter
+- This allows you to analyze any workspace you have open in VS Code
+
+Two sample VS Code configuration files are provided in this repository:
+- `vscode_config_sample.json`: Contains just the MCP server configuration
+- `vscode_settings_example.json`: A more comprehensive example showing how to integrate the MCP server configuration into your VS Code settings file
+
+The key configuration is under the `mcp.servers` setting, which tells VS Code how to start and communicate with your MCP server.

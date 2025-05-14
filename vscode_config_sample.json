@@ -1,0 +1,13 @@
+{
+    "mcp.servers": {
+        "python-ai-course-mcp-server": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "C:\\Users\\arkadiusz.kajzerek\\_devel\\Bain\\PythonAITraining\\python-ai-course-mcp-server",
+                "run",
+                "main.py"
+            ]
+        }
+    }
+}

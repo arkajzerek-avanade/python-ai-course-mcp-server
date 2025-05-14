@@ -1,0 +1,18 @@
+{
+    "mcp.servers": {
+        "python-ai-course-mcp-server": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "${workspaceFolder}",
+                "run",
+                "main.py"
+            ]
+        }
+    },
+    "mcp.defaultServer": "python-ai-course-mcp-server",
+    "mcp.logging.level": "info",
+    "editor.formatOnSave": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.analysis.typeCheckingMode": "basic"
+}
