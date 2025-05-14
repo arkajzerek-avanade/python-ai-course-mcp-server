@@ -77,7 +77,14 @@ This project implements a simple MCP (Model Context Protocol) server with the fo
 
 4. **get_repo_info**: Returns basic information about a Git repository
    - Parameters: `repo_path` (string, required) - Path to the Git repository
-   - Returns the output of `git status` for the specified repository
+   - Returns information about the repository status, including branch, modified files, and remote information
+   - In VS Code, you can use `${workspaceFolder}` as the parameter value
+
+5. **get_diff**: Returns the diff between the current branch and a target branch
+   - Parameters: 
+     - `repo_path` (string, required) - Path to the Git repository
+     - `target_branch` (string, optional, default: "main") - The target branch to compare against
+   - Returns a list of changed files and a summary of changes between the branches
    - In VS Code, you can use `${workspaceFolder}` as the parameter value
 
 ### How It Works

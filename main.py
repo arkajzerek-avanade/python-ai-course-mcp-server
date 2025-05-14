@@ -238,6 +238,76 @@ async def get_repo_info(repo_path: str) -> str:
     except Exception as e:
         return f"Error: {str(e)}"
 
+@mcp.tool()
+async def get_diff(repo_path: str, target_branch: str = "main") -> str:
+    """Get the diff between the current branch and a target branch.
+    
+    Args:
+        repo_path: Path to the Git repository (can use ${workspaceFolder} in VS Code)
+        target_branch: The target branch to compare against (default: main)
+    
+    Returns the diff between the current branch and the target branch.
+    """
+    
+    await server.request_context.session.send_log_message(
+      level="info",
+      data=f"get_diff {repo_path} against {target_branch} started successfully",
+    )
+    
+    try:
+        # Ensure the path exists
+        if not os.path.exists(repo_path):
+            return f"Error: The path '{repo_path}' does not exist."
+        
+        # Open the repository using GitPython
+        try:
+            repo = git.Repo(repo_path)
+        except git.exc.InvalidGitRepositoryError:
+            return f"Error: '{repo_path}' is not a Git repository."
+        
+        # Get current branch
+        try:
+            current_branch = repo.active_branch.name
+        except TypeError:
+            return "Error: Cannot determine current branch (detached HEAD state)."
+        
+        # Check if target branch exists
+        if target_branch not in [ref.name for ref in repo.refs]:
+            return f"Error: Target branch '{target_branch}' does not exist in this repository."
+        
+        # Get the diff between current branch and target branch
+        try:
+            # Get the common ancestor commit
+            merge_base = repo.git.merge_base(current_branch, target_branch)
+            
+            # Get the diff
+            diff = repo.git.diff(merge_base, current_branch, name_only=True)
+            
+            if not diff:
+                return f"No differences between {current_branch} and {target_branch}."
+            
+            # Format the output
+            result = [f"Diff between {current_branch} and {target_branch}:\n"]
+            
+            # List changed files
+            result.append("Changed files:")
+            for file in diff.splitlines():
+                result.append(f"  {file}")
+            
+            # Get a summary of changes
+            diff_stat = repo.git.diff(merge_base, current_branch, stat=True)
+            result.append("\nSummary of changes:")
+            result.append(diff_stat)
+            
+            return "\n".join(result)
+            
+        except git.exc.GitCommandError as e:
+            return f"Error getting diff: {str(e)}"
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
 if __name__ == "__main__":
     # Initialize and run the server
     mcp.run(transport='stdio')
